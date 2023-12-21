@@ -73,6 +73,8 @@ while(True):
     #Save data
     if(strengthOpen and readLastTime("Strength.csv") != strengthTime):
         saveToFile("Strength.csv", strengthDOW, strengthTime, strengthCap)
+        print("Saved strength info!")
         
     if(cardioOpen and readLastTime("Cardio.csv") != cardioTime):
         saveToFile("Cardio.csv", cardioDOW, cardioTime, cardioCap)
+        print("Saved cardio info!")

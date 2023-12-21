@@ -34,8 +34,7 @@ def readLastTime(fileName):
 while(True):
     
     #Prevent request spamming
-    time.sleep(1)
-    #time.sleep(random.randint(30, 60));
+    time.sleep(random.randint(30, 60));
     
     #Request
     r = requests.get(url, headers={"User-Agent": "XY"})

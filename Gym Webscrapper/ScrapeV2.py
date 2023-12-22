@@ -14,7 +14,7 @@ def getDayOfWeek(splitInput):
     date = datetime.strptime(year+"-"+month+"-"+day, '%Y-%m-%d')
     return date.strftime("%A")
 
-def convertToMilitaryTime(normTime):
+def toMilitaryTime(normTime):
     splitTime = normTime[0].split(':')
     minute = splitTime[1]
     hour = splitTime[0]
@@ -27,7 +27,7 @@ def saveToFile(fileName, dayOfWeek, time, capacity):
         file.write(dayOfWeek + ", " + time + ", " + capacity + "\n")
         file.close()
         
-def readLastTime(fileName):
+def getLastTime(fileName):
     with open(fileName, "r") as file:
         lastTime = file.readlines()[-1].split(", ")[1]
         file.close()
@@ -58,12 +58,12 @@ while(True):
     #Weekday and time grab
     strengthSplit = strengthMeta[3][9:].split('/')
     
-    strengthTime = convertToMilitaryTime(strengthSplit[2][5:].split())
+    strengthTime = toMilitaryTime(strengthSplit[2][5:].split())
     strengthDOW = getDayOfWeek(strengthSplit)
     
     cardioSplit = cardioMeta[3][9:].split('/')
     
-    cardioTime = convertToMilitaryTime(cardioSplit[2][5:].split())
+    cardioTime = toMilitaryTime(cardioSplit[2][5:].split())
     cardioDOW = getDayOfWeek(cardioSplit)
     
     #Capacity grab
@@ -73,10 +73,10 @@ while(True):
     cardioCap = capacityInfo.find_next(class_="barChart__row")["data-value"]
     
     #Save data
-    if(strengthOpen and readLastTime("Strength.csv") != strengthTime):
+    if(strengthOpen and getLastTime("Strength.csv") != strengthTime):
         saveToFile("Strength.csv", strengthDOW, strengthTime, strengthCap)
         print("Saved strength info!")
         
-    if(cardioOpen and readLastTime("Cardio.csv") != cardioTime):
+    if(cardioOpen and getLastTime("Cardio.csv") != cardioTime):
         saveToFile("Cardio.csv", cardioDOW, cardioTime, cardioCap)
         print("Saved cardio info!")

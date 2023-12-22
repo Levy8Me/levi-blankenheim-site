@@ -29,7 +29,9 @@ def saveToFile(fileName, dayOfWeek, time, capacity):
         
 def readLastTime(fileName):
     with open(fileName, "r") as file:
-        return file.readlines()[-1].split(", ")[1]
+        lastTime = file.readlines()[-1].split(", ")[1]
+        file.close()
+    return lastTime
 
 while(True):
     

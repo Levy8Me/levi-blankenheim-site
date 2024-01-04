@@ -17,10 +17,10 @@ def getDayOfWeek(splitInput):
 def toMilitaryTime(normTime):
     splitTime = normTime[0].split(':')
     minute = splitTime[1]
-    hour = splitTime[0]
-    if(normTime[1] == "PM"):
-        hour = str(int(hour) + 12)
-    return hour+":"+minute
+    hour = int(splitTime[0])
+    if((normTime[1] == "PM" and hour < 12) or (normTime[1] == "AM" and hour == 12)):
+        hour = str(hour + 12)
+    return str(hour)+":"+minute
     
 def saveToFile(fileName, dayOfWeek, time, capacity):
     with open(fileName, "a") as file:
@@ -34,49 +34,59 @@ def getLastTime(fileName):
     return lastTime
 
 while(True):
+    #Check for successful request
+    requestPass = True
     
     #Prevent request spamming
     time.sleep(random.randint(30, 60));
     
     #Request
-    r = requests.get(url, headers={"User-Agent": "XY"})
+    try:
+        r = requests.get(url, headers={"User-Agent": "XY"})
+    except:
+        requestPass = False
+        print("Request Error")
     
-    #Soup setup
-    soup = BeautifulSoup(r.content, 'html.parser')
+    if(requestPass):
+        #Soup setup
+        soup = BeautifulSoup(r.content, 'html.parser')
 
-    #Meta grab
-    metaInfo = soup.find_all(class_='barChart')
-    
-    #Split meta grab
-    strengthMeta = list(metaInfo[0].stripped_strings)
-    cardioMeta = list(metaInfo[1].stripped_strings)
-    
-    #Open grab
-    strengthOpen = strengthMeta[1][1:-1] == "Open"
-    cardioOpen = cardioMeta[1][1:-1] == "Open"
-    
-    #Weekday and time grab
-    strengthSplit = strengthMeta[3][9:].split('/')
-    
-    strengthTime = toMilitaryTime(strengthSplit[2][5:].split())
-    strengthDOW = getDayOfWeek(strengthSplit)
-    
-    cardioSplit = cardioMeta[3][9:].split('/')
-    
-    cardioTime = toMilitaryTime(cardioSplit[2][5:].split())
-    cardioDOW = getDayOfWeek(cardioSplit)
-    
-    #Capacity grab
-    capacityInfo = soup.find(class_="barChart__row")
-
-    strengthCap = capacityInfo["data-value"]
-    cardioCap = capacityInfo.find_next(class_="barChart__row")["data-value"]
-    
-    #Save data
-    if(strengthOpen and getLastTime("Strength.csv") != strengthTime):
-        saveToFile("Strength.csv", strengthDOW, strengthTime, strengthCap)
-        print("Saved strength info!")
+        #Meta grab
+        metaInfo = soup.find_all(class_='barChart')
         
-    if(cardioOpen and getLastTime("Cardio.csv") != cardioTime):
-        saveToFile("Cardio.csv", cardioDOW, cardioTime, cardioCap)
-        print("Saved cardio info!")
+        #Split meta grab
+        strengthMeta = list(metaInfo[0].stripped_strings)
+        cardioMeta = list(metaInfo[1].stripped_strings)
+        
+        #Open grab
+        strengthOpen = strengthMeta[1][1:-1] == "Open"
+        cardioOpen = cardioMeta[1][1:-1] == "Open"
+        
+        #Weekday and time grab
+        strengthSplit = strengthMeta[3][9:].split('/')
+        
+        strengthTime = toMilitaryTime(strengthSplit[2][5:].split())
+        strengthDOW = getDayOfWeek(strengthSplit)
+        
+        cardioSplit = cardioMeta[3][9:].split('/')
+        
+        cardioTime = toMilitaryTime(cardioSplit[2][5:].split())
+        cardioDOW = getDayOfWeek(cardioSplit)
+        
+        #Capacity grab
+        capacityInfo = soup.find(class_="barChart__row")
+
+        strengthCap = capacityInfo["data-value"]
+        cardioCap = capacityInfo.find_next(class_="barChart__row")["data-value"]
+        
+        #Save data
+        strengthPath = "Strength.csv"
+        cardioPath = "Cardio.csv"
+        
+        if(strengthOpen and getLastTime(strengthPath) != strengthTime):
+            saveToFile(strengthPath, strengthDOW, strengthTime, strengthCap)
+            print("Saved strength info!")
+            
+        if(cardioOpen and getLastTime(cardioPath) != cardioTime):
+            saveToFile(cardioPath, cardioDOW, cardioTime, cardioCap)
+            print("Saved cardio info!")

@@ -32,6 +32,22 @@ def getLastTime(fileName):
         lastTime = file.readlines()[-1].split(", ")[1]
         file.close()
     return lastTime
+    
+def roundTime(timeSplit):
+    hour = timeSplit[0]
+    minute = int(timeSplit[1])
+    if(minute <= 7):
+        return [hour, "00"]
+    if(minute > 7 and minute <= 23):
+        return [hour, "15"]
+    if(minute > 23 and minute <= 37):
+        return [hour, "30"]
+    if(minute > 37 and minute <= 53):
+        return [hour, "45"]
+    if(minute > 53 and minute <= 59):
+        if(int(hour) == 23):
+            return ["1", "00"]
+        return [str(int(hour) + 1), "00"]
 
 while(True):
     #Error handling
@@ -89,10 +105,16 @@ while(True):
             strengthPath = "Strength.csv"
             cardioPath = "Cardio.csv"
             
-            if(strengthOpen and getLastTime(strengthPath) != strengthTime):
-                saveToFile(strengthPath, strengthDOW, strengthTime, strengthCap)
+            #Round times (for a better graph view)
+            strengthRoundedTimeSplit = roundTime(strengthTime.split(":"))
+            cardioRoundedTimeSplit = roundTime(cardioTime.split(":"))
+            strengthRoundedTime = strengthRoundedTimeSplit[0] + ":" + strengthRoundedTimeSplit[1]
+            cardioRoundedTime = cardioRoundedTimeSplit[0] + ":" + cardioRoundedTimeSplit[1]
+            
+            if(strengthOpen and getLastTime(strengthPath) != strengthRoundedTime):
+                saveToFile(strengthPath, strengthDOW, strengthRoundedTime, strengthCap)
                 print("Saved strength info!")
                 
-            if(cardioOpen and getLastTime(cardioPath) != cardioTime):
-                saveToFile(cardioPath, cardioDOW, cardioTime, cardioCap)
+            if(cardioOpen and getLastTime(cardioPath) != cardioRoundedTime):
+                saveToFile(cardioPath, cardioDOW, cardioRoundedTime, cardioCap)
                 print("Saved cardio info!")
